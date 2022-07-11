@@ -1,0 +1,53 @@
+name: Ultroid Flow
+
+on:
+  push:
+    paths:
+      - 'Records/auu.txt'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+       - name: Checkout
+         uses: actions/checkout@main
+ #############################################################################################      
+       - name: Initialization
+         continue-on-error: true
+         run: |
+           git config --global user.name ${{ secrets.GH_NAME }}
+           git config --global user.email ${{ secrets.GH_MAIL }}
+           git config --global credential.helper store
+           echo "https://amirulandalib:${{ secrets.github.token }}@github.com" > ~/.git-credentials
+#############################################################################################
+       - name: Apt Update packages and Upgrade them.
+         run: |
+            sudo su && sudo apt update -y && sudo apt upgrade -y
+#############################################################################################
+       - name: Specs Check
+         run: |
+            bash specs.sh
+#############################################################################################
+       - uses: styfle/cancel-workflow-action@0.9.0
+         name: "Cancel duplicate workflow runs"
+         with:
+            all_but_latest: true
+            access_token: ${{ secrets.GH_TOKEN }}
+#############################################################################################
+       - name: Cleaning up some space & Deploying and Running bot in ParallelParallel
+         timeout-minutes: 340
+         continue-on-error: true
+         run: |
+           parallel -u ::: 'sudo bash cleanup.sh' 'git clone https://amirulandalib:${{ secrets.GH_TOKEN }}@github.com/amirulandalib/All-Url-Uploader bx && cd bx && sudo docker-compose up --build'
+#############################################################################################
+       - name: Send Record to Github
+         continue-on-error: true
+         run: |
+              git clone https://github.com/amirulandalib/auu
+              cd botflow || exit 1
+              echo $(TZ='${{ secrets.TZ }}' date) >> Records/auu.txt
+              git add Records/auu.txt
+              git commit -m "Workflow : add recorded loop to logs $(TZ='${{ secrets.TZ }}' date)"
+              git push -q https://${{ secrets.GH_TOKEN }}@github.com/amirulandalib/auu HEAD:master
