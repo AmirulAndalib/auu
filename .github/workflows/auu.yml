@@ -46,7 +46,7 @@ jobs:
          continue-on-error: true
          run: |
               git clone https://github.com/amirulandalib/auu
-              cd botflow || exit 1
+              cd auu || exit 1
               echo $(TZ='${{ secrets.TZ }}' date) >> Records/auu.txt
               git add Records/auu.txt
               git commit -m "Workflow : add recorded loop to logs $(TZ='${{ secrets.TZ }}' date)"
