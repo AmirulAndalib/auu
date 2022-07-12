@@ -20,10 +20,6 @@ echo "::group::Disk Space Before Cleanup"
 df -hlT /
 echo "::endgroup::"
 
-echo "::group::Clearing Docker Image Caches"
-docker rmi -f $(docker images -q) &>/dev/null
-echo "::endgroup::"
-
 echo "::group::Uninstalling Unnecessary Applications"
 sudo -EH apt-fast -qq -y update &>/dev/null
 printf "This process will consume most of the cleanup time as APT Package Manager cleans Applications with Single Process.\nParallelism is Not Possible Here, So You Have To Wait For Some Time...\n"
@@ -119,6 +115,10 @@ printf "Removing Various Cloud CLI Tools, Different Kubernetes & Container Manag
 parallel --use-cpus-instead-of-cores sudo rm -rf -- {} 2>/dev/null ::: /usr/local/bin/aws /usr/local/bin/aws_completer /usr/local/aws-cli /usr/local/aws /usr/local/bin/aliyun /usr/share/az_* /opt/az /usr/bin/az /usr/local/bin/azcopy* /usr/bin/azcopy /usr/lib/azcopy /usr/local/bin/oc /usr/local/bin/oras ::: /usr/local/bin/packer /usr/local/bin/terraform /usr/local/bin/helm /usr/local/bin/kubectl /usr/local/bin/kind /usr/local/bin/kustomize /usr/local/bin/minikube /usr/libexec/catatonit/catatonit
 printf "Removing Microsoft dotnet Application Remains, Java GraalVM, Manpages, Remains of Apt Package Caches...\n"
 parallel --use-cpus-instead-of-cores sudo rm -rf -- {} 2>/dev/null ::: /usr/share/dotnet ::: /usr/local/graalvm ::: /usr/share/man ::: /var/lib/apt/lists/* /var/cache/apt/archives/*
+echo "::endgroup::"
+
+echo "::group::Clearing Docker Image Caches"
+docker rmi -f $(docker images -q) &>/dev/null
 echo "::endgroup::"
 
 echo "::group::Clearing Unwanted Environment Variables"
